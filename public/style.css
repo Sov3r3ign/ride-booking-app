@@ -1,0 +1,734 @@
+/* ==========================================
+   RIDEBOOK - PROFESSIONAL DESIGN SYSTEM
+   Modern, efficient, and trustworthy
+   ========================================== */
+
+:root {
+  /* Color Palette */
+  --color-primary: #0f172a;
+  --color-primary-light: #1e293b;
+  --color-secondary: #334155;
+  --color-accent-orange: #f97316;
+  --color-accent-teal: #14b8a6;
+  --color-accent-purple: #8b5cf6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-danger: #ef4444;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cbd5e1;
+  --color-text-tertiary: #94a3b8;
+  --color-border: #334155;
+  --color-border-light: #475569;
+  --color-hover: #475569;
+  --color-interactive: #64748b;
+  
+  /* Spacing Scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Typography */
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  --font-mono: 'Menlo', 'Monaco', 'Courier New', monospace;
+  
+  /* Transitions */
+  --transition-fast: 100ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================
+   BASE STYLES
+   ========================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--color-primary);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   APP LAYOUT
+   ========================================== */
+
+#app {
+  display: flex;
+  height: 100vh;
+  background: var(--color-primary);
+}
+
+/* ==========================================
+   SIDEBAR / CONTROLS
+   ========================================== */
+
+#sidebar {
+  width: 380px;
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-text-primary);
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+#sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+#sidebar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-interactive);
+}
+
+/* Brand Logo */
+#sidebar h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--color-accent-teal) 0%, var(--color-accent-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+/* Instruction Text */
+.instruction {
+  font-size: 0.9375rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  padding: var(--spacing-md);
+  background: rgba(139, 92, 246, 0.08);
+  border-left: 3px solid var(--color-accent-purple);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+}
+
+/* Controls Section */
+#ride-controls {
+  display: flex;
+  gap: var(--spacing-md);
+  animation: slideInUp var(--transition-slow);
+}
+
+#ride-controls.hidden {
+  display: none;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   BUTTONS
+   ========================================== */
+
+button {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all var(--transition-base);
+  font-family: var(--font-family);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width var(--transition-base), height var(--transition-base);
+}
+
+button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Primary Button */
+#request-btn {
+  background: linear-gradient(135deg, var(--color-accent-orange) 0%, var(--color-accent-orange) 100%);
+  color: var(--color-primary);
+  flex: 1;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+#request-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+#request-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+}
+
+#request-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary Button */
+#reset-btn {
+  background: var(--color-secondary);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-light);
+}
+
+#reset-btn:hover {
+  background: var(--color-hover);
+  border-color: var(--color-text-secondary);
+}
+
+#reset-btn:active {
+  background: var(--color-secondary);
+}
+
+/* ==========================================
+   SECTION HEADERS
+   ========================================== */
+
+#sidebar h2 {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin: var(--spacing-lg) 0 var(--spacing-md) 0;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border);
+}
+
+#sidebar h2:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+/* ==========================================
+   RIDES LIST
+   ========================================== */
+
+#rides-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+#rides-list li {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  font-size: 0.8125rem;
+  animation: slideInUp var(--transition-slow);
+  transition: all var(--transition-base);
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(10px);
+}
+
+#rides-list li::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-orange), var(--color-accent-teal));
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+#rides-list li:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: var(--color-accent-teal);
+  transform: translateX(4px);
+}
+
+#rides-list li::before {
+  opacity: 1;
+}
+
+/* Ride Content */
+#rides-list li > span:first-child {
+  display: block;
+  margin-bottom: var(--spacing-sm);
+}
+
+#rides-list li br {
+  content: '';
+  display: block;
+  height: var(--spacing-sm);
+}
+
+/* Status Badge */
+#rides-list li .status {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-sm);
+  animation: fadeInScale var(--transition-base);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+#rides-list li .status.pending {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--color-accent-orange);
+  border: 1px solid var(--color-accent-orange);
+}
+
+#rides-list li .status.accepted {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--color-accent-teal);
+  border: 1px solid var(--color-accent-teal);
+}
+
+#rides-list li .status.completed {
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--color-success);
+  border: 1px solid var(--color-success);
+}
+
+/* ==========================================
+   MAP CONTAINER
+   ========================================== */
+
+#map {
+  flex: 1;
+  height: 100vh;
+  background: #f0f4f8;
+  position: relative;
+}
+
+/* Leaflet overrides for consistent styling */
+.leaflet-container {
+  font-family: var(--font-family);
+}
+
+.leaflet-popup-content-wrapper {
+  background: var(--color-primary-light);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.leaflet-popup-content-wrapper a {
+  color: var(--color-accent-teal);
+}
+
+.leaflet-popup-tip {
+  border-top-color: var(--color-primary-light);
+}
+
+.leaflet-control-attribution {
+  background: rgba(15, 23, 42, 0.8);
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
+  backdrop-filter: blur(10px);
+}
+
+.leaflet-control-attribution a {
+  color: var(--color-accent-teal);
+}
+
+/* ==========================================
+   DRIVER DASHBOARD STYLES
+   ========================================== */
+
+#driver-dashboard {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  min-height: 100vh;
+  background: linear-gradient(to bottom, var(--color-primary), var(--color-primary-light));
+}
+
+#driver-dashboard h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--color-accent-teal) 0%, var(--color-accent-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--spacing-sm);
+  letter-spacing: -1px;
+}
+
+#driver-dashboard p {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+#driver-rides {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Ride Card */
+.ride-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(30, 41, 59, 0.4) 100%);
+  border: 1px solid var(--color-border);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  margin-bottom: 0;
+  animation: slideInUp var(--transition-slow);
+  transition: all var(--transition-base);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.ride-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent-orange), var(--color-accent-teal));
+}
+
+.ride-card:hover {
+  border-color: var(--color-accent-teal);
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(30, 41, 59, 0.6) 100%);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ride-card .status {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--spacing-md);
+}
+
+.ride-card .status.pending {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--color-accent-orange);
+  border: 1px solid var(--color-accent-orange);
+}
+
+.ride-card .status.accepted {
+  background: rgba(20, 184, 166, 0.15);
+  color: var(--color-accent-teal);
+  border: 1px solid var(--color-accent-teal);
+}
+
+.ride-card .coords {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  line-height: 1.8;
+  margin-bottom: var(--spacing-lg);
+  font-family: var(--font-mono);
+  background: rgba(0, 0, 0, 0.2);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+}
+
+.ride-card .coords strong {
+  color: var(--color-text-primary);
+  font-weight: 600;
+}
+
+.ride-card .coords br {
+  margin: var(--spacing-xs) 0;
+}
+
+/* Action Buttons */
+.ride-card button {
+  margin-right: var(--spacing-md);
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.accept-btn {
+  background: linear-gradient(135deg, var(--color-accent-orange) 0%, #fb923c 100%);
+  color: var(--color-primary);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+}
+
+.accept-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+}
+
+.complete-btn {
+  background: linear-gradient(135deg, var(--color-accent-teal) 0%, #06d6a0 100%);
+  color: var(--color-primary);
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.complete-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(20, 184, 166, 0.4);
+}
+
+/* Empty State */
+.no-rides {
+  color: var(--color-text-tertiary);
+  font-style: italic;
+  text-align: center;
+  padding: var(--spacing-2xl);
+  background: rgba(100, 116, 139, 0.1);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 1024px) {
+  #sidebar {
+    width: 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+    max-height: 40vh;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border);
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+  }
+
+  #map {
+    min-height: 60vh;
+  }
+
+  #driver-dashboard {
+    padding: var(--spacing-lg);
+  }
+
+  #driver-dashboard h1 {
+    font-size: 1.5rem;
+  }
+
+  .ride-card {
+    padding: var(--spacing-md);
+  }
+
+  button {
+    padding: var(--spacing-md);
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  #sidebar {
+    padding: var(--spacing-md);
+    gap: var(--spacing-md);
+    max-height: 50vh;
+  }
+
+  #sidebar h1 {
+    font-size: 1.5rem;
+  }
+
+  #map {
+    min-height: 50vh;
+  }
+
+  #ride-controls {
+    gap: var(--spacing-sm);
+  }
+
+  button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.75rem;
+  }
+
+  #request-btn,
+  #reset-btn {
+    flex: 1;
+  }
+
+  .ride-card {
+    padding: var(--spacing-md);
+  }
+
+  .ride-card button {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  #driver-dashboard {
+    padding: var(--spacing-md);
+  }
+
+  .coords {
+    font-size: 0.75rem !important;
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+button:focus-visible {
+  outline: 2px solid var(--color-accent-teal);
+  outline-offset: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--color-accent-teal);
+  outline-offset: 2px;
+}
+
+/* ==========================================
+   LOADING STATE
+   ========================================== */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ==========================================
+   STATUS INDICATOR
+   ========================================== */
+
+.status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: var(--spacing-sm);
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.status-dot.pending {
+  background: var(--color-accent-orange);
+}
+
+.status-dot.accepted {
+  background: var(--color-accent-teal);
+}
+
+.status-dot.completed {
+  background: var(--color-success);
+}
