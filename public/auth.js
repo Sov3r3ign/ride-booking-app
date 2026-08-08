@@ -95,4 +95,4 @@ if (document.readyState === 'loading') {
   displayUserInfo();
 }
 
-console.log('🔐 Authentication system loaded');
+console.log(' Authentication system loaded');

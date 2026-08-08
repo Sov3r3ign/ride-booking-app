@@ -59,7 +59,8 @@ async function handleLogin() {
 
   try {
     // Send login request
-    const response = await fetch('/api/login', {
+    const API_URL = 'https://ridebook-api.onrender.com';
+    const response = await fetch(API_URL + '/api/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -99,10 +100,6 @@ async function handleLogin() {
   }
 }
 
-// ==========================================
-// UI HELPERS
-// ==========================================
-
 function showError(message) {
   loginError.textContent = message;
   loginError.classList.add('show');
@@ -118,10 +115,6 @@ loginForm.addEventListener('keypress', function (e) {
     handleLogin();
   }
 });
-
-// ==========================================
-// SESSION CHECK
-// ==========================================
 
 // If user is already logged in, redirect them
 function checkExistingSession() {

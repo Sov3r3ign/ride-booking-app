@@ -465,7 +465,8 @@ requestBtn.addEventListener('click', async function () {
       }
     };
 
-    const response = await fetch('/api/rides', {
+    const API_URL = 'https://ridebook-api.onrender.com';
+    const response = await fetch(`${API_URL}/api/rides`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(rideData)
