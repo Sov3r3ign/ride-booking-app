@@ -1,6 +1,6 @@
 
 // Initialize the Leaflet map centered on London
-const map = L.map('map').setView([51.505, -0.09], 13);
+/* const map = L.map('map').setView([51.505, -0.09], 13);
 
 // Add OpenStreetMap tiles as the base layer
 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -47,21 +47,11 @@ const redIcon = L.icon({
   shadowSize: [41, 41]
 });
 
-// ==========================================
-// HELPER FUNCTIONS
-// ==========================================
-
-/**
- * Show loading indicator with message
- */
 function showLoading(show = true) {
   loadingIndicator.classList.toggle('active', show);
   requestBtn.disabled = show;
 }
 
-/**
- * Update instruction text with smooth transition
- */
 function updateInstruction(text) {
   instruction.style.opacity = '0.5';
   setTimeout(() => {
@@ -71,9 +61,6 @@ function updateInstruction(text) {
   instruction.style.transition = 'opacity 150ms ease-in-out';
 }
 
-/**
- * Add a ride to the sidebar list with proper formatting
- */
 function addRideToList(ride) {
   // Remove the empty state message if it exists
   const emptyState = ridesList.querySelector('[style*="italic"]');
@@ -105,9 +92,6 @@ function addRideToList(ride) {
   ridesList.prepend(li);
 }
 
-/**
- * Draw a ride on the map as colored circles and connecting line
- */
 function addRideToMap(ride) {
   // Pickup marker - Teal circle
   L.circleMarker([ride.pickup.lat, ride.pickup.lng], {
@@ -156,9 +140,6 @@ function addRideToMap(ride) {
   map.fitBounds(bounds, { padding: [100, 100], maxZoom: 15 });
 }
 
-/**
- * Clear both markers and reset to initial state
- */
 function resetMarkers() {
   if (pickupMarker) map.removeLayer(pickupMarker);
   if (dropoffMarker) map.removeLayer(dropoffMarker);
@@ -171,13 +152,6 @@ function resetMarkers() {
   rideControls.classList.add('hidden');
 }
 
-// ==========================================
-// MAP INTERACTIONS
-// ==========================================
-
-/**
- * Handle map clicks for placing pickup and dropoff markers
- */
 map.on('click', function (e) {
   if (isRequestingRide) return; // Prevent placing markers while requesting
 
@@ -206,13 +180,6 @@ map.on('click', function (e) {
   }
 });
 
-// ==========================================
-// BUTTON HANDLERS
-// ==========================================
-
-/**
- * Request Ride - Send ride data to API
- */
 requestBtn.addEventListener('click', async function () {
   if (!pickupMarker || !dropoffMarker) return;
   if (isRequestingRide) return;
@@ -268,21 +235,11 @@ requestBtn.addEventListener('click', async function () {
   }
 });
 
-/**
- * Reset - Clear markers and start over
- */
 resetBtn.addEventListener('click', function () {
   resetMarkers();
   updateInstruction('Click the map to set your pickup location');
 });
 
-// ==========================================
-// LOAD EXISTING RIDES ON PAGE LOAD
-// ==========================================
-
-/**
- * Fetch all rides from the database and display them
- */
 async function loadRides() {
   try {
     const response = await fetch('/api/rides');
@@ -321,4 +278,261 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Log app status
 console.log('🚗 RideBook Rider App Loaded');
-console.log('Map centered on London - click to place pickup/dropoff markers');
+console.log('Map centered on London - click to place pickup/dropoff markers');*/
+
+
+const session = getCurrentSession();
+if (!session || session.role !== 'rider') {
+  window.location.href = '/login.html';
+}
+
+// Initialize the Leaflet map
+const map = L.map('map').setView([-26.2023, 28.0436], 13);
+
+// Add OpenStreetMap tiles
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let pickupMarker = null;
+let dropoffMarker = null;
+let clickState = 'pickup';
+let isRequestingRide = false;
+
+// DOM References
+const instruction = document.getElementById('instruction');
+const rideControls = document.getElementById('ride-controls');
+const requestBtn = document.getElementById('request-btn');
+const resetBtn = document.getElementById('reset-btn');
+const ridesList = document.getElementById('rides-list');
+const loadingIndicator = document.getElementById('loading-indicator');
+
+
+const greenIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+const redIcon = L.icon({
+  iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
+
+function showLoading(show = true) {
+  loadingIndicator.classList.toggle('active', show);
+  requestBtn.disabled = show;
+}
+
+function updateInstruction(text, type = 'info') {
+  instruction.className = `instruction ${type === 'warning' ? 'warning' : type === 'success' ? 'success' : ''}`;
+  instruction.textContent = text;
+}
+
+function addRideToList(ride) {
+  const emptyState = ridesList.querySelector('[style*="italic"]');
+  if (emptyState) emptyState.remove();
+
+  const li = document.createElement('li');
+  li.role = 'listitem';
+  
+  const statusEmoji = ride.status === 'pending' ? '🟠' : ride.status === 'accepted' ? '🟢' : '✓';
+
+  li.innerHTML = `
+    <div class="ride-status-badge">
+      <span class="status ${ride.status}">${ride.status.toUpperCase()}</span>
+      <span class="ride-time">${statusEmoji} ${ride._id.slice(-6).toUpperCase()}</span>
+    </div>
+    <div style="margin-top: 0.75rem;">
+      <strong> Pickup</strong><br>
+      <span style="font-family: var(--font-mono);">${ride.pickup.lat.toFixed(4)}, ${ride.pickup.lng.toFixed(4)}</span><br>
+      <br>
+      <strong> Dropoff</strong><br>
+      <span style="font-family: var(--font-mono);">${ride.dropoff.lat.toFixed(4)}, ${ride.dropoff.lng.toFixed(4)}</span>
+    </div>
+  `;
+  
+  ridesList.prepend(li);
+}
+
+function addRideToMap(ride) {
+  // Pickup marker
+  L.circleMarker([ride.pickup.lat, ride.pickup.lng], {
+    radius: 10,
+    color: '#059669',
+    fillColor: '#059669',
+    fillOpacity: 0.8,
+    weight: 2
+  }).addTo(map).bindPopup(
+    `<strong>Pickup</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`
+  );
+
+  // Dropoff marker
+  L.circleMarker([ride.dropoff.lat, ride.dropoff.lng], {
+    radius: 10,
+    color: '#dc2626',
+    fillColor: '#dc2626',
+    fillOpacity: 0.8,
+    weight: 2
+  }).addTo(map).bindPopup(
+    `<strong>Dropoff</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`
+  );
+
+  // Connect with line
+  L.polyline([
+    [ride.pickup.lat, ride.pickup.lng],
+    [ride.dropoff.lat, ride.dropoff.lng]
+  ], {
+    color: '#7c3aed',
+    weight: 3,
+    dashArray: '5, 10',
+    opacity: 0.7
+  }).addTo(map);
+
+  // Fit bounds
+  const bounds = L.latLngBounds([
+    [ride.pickup.lat, ride.pickup.lng],
+    [ride.dropoff.lat, ride.dropoff.lng]
+  ]);
+  map.fitBounds(bounds, { padding: [100, 100], maxZoom: 15 });
+}
+
+function resetMarkers() {
+  if (pickupMarker) map.removeLayer(pickupMarker);
+  if (dropoffMarker) map.removeLayer(dropoffMarker);
+  
+  pickupMarker = null;
+  dropoffMarker = null;
+  clickState = 'pickup';
+  
+  updateInstruction('Click the map to set your pickup location');
+  rideControls.classList.add('hidden');
+}
+
+map.on('click', function (e) {
+  if (isRequestingRide) return;
+
+  if (clickState === 'pickup') {
+    if (pickupMarker) map.removeLayer(pickupMarker);
+    
+    pickupMarker = L.marker(e.latlng, { icon: greenIcon })
+      .addTo(map)
+      .bindPopup(' Pickup Location')
+      .openPopup();
+    
+    clickState = 'dropoff';
+    updateInstruction('Now click to set your dropoff location');
+    
+  } else if (clickState === 'dropoff') {
+    if (dropoffMarker) map.removeLayer(dropoffMarker);
+    
+    dropoffMarker = L.marker(e.latlng, { icon: redIcon })
+      .addTo(map)
+      .bindPopup(' Dropoff Location')
+      .openPopup();
+    
+    clickState = 'done';
+    updateInstruction(' Ready! Click "Request Ride"', 'success');
+    rideControls.classList.remove('hidden');
+  }
+});
+
+requestBtn.addEventListener('click', async function () {
+  if (!pickupMarker || !dropoffMarker) return;
+  if (isRequestingRide) return;
+
+  isRequestingRide = true;
+  showLoading(true);
+  updateInstruction(' Submitting your ride request...');
+
+  try {
+    const rideData = {
+      pickup: {
+        lat: pickupMarker.getLatLng().lat,
+        lng: pickupMarker.getLatLng().lng
+      },
+      dropoff: {
+        lat: dropoffMarker.getLatLng().lat,
+        lng: dropoffMarker.getLatLng().lng
+      }
+    };
+
+    const response = await fetch('/api/rides', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rideData)
+    });
+
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status}`);
+    }
+
+    const savedRide = await response.json();
+    
+    addRideToList(savedRide);
+    addRideToMap(savedRide);
+    
+    updateInstruction(' Ride requested! Driver will accept soon.', 'success');
+    showLoading(false);
+    
+    setTimeout(() => {
+      resetMarkers();
+      updateInstruction('Click the map to set your pickup location');
+    }, 1500);
+
+  } catch (err) {
+    console.error('Error requesting ride:', err);
+    showLoading(false);
+    updateInstruction(' Failed to request ride. Please try again.', 'warning');
+    isRequestingRide = false;
+  }
+});
+
+resetBtn.addEventListener('click', function () {
+  resetMarkers();
+  updateInstruction('Click the map to set your pickup location');
+});
+
+async function loadRides() {
+  try {
+    const response = await fetch('/api/rides');
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load rides: ${response.status}`);
+    }
+
+    const rides = await response.json();
+
+    const emptyState = ridesList.querySelector('[style*="italic"]');
+    if (emptyState && rides.length > 0) {
+      emptyState.remove();
+    }
+
+    rides.forEach(ride => {
+      addRideToList(ride);
+      addRideToMap(ride);
+    });
+
+  } catch (err) {
+    console.error('Error loading rides:', err);
+    updateInstruction(' Could not load rides. Check your connection.', 'warning');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadRides();
+  
+  // Refresh rides every 10 seconds
+  setInterval(loadRides, 10000);
+});
+
+console.log(' RideBook Rider App Loaded');
+console.log(' Johannesburg, South Africa view');

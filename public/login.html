@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RideBook - Professional ride booking login">
+  <meta name="theme-color" content="#000000">
+  
+  <title>RideBook — Login</title>
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <!-- Login Form Panel -->
+    <div class="login-panel">
+      <div class="login-form-container">
+        <div class="login-logo">RideBook</div>
+        <p class="login-tagline">
+          Request a ride instantly. Drive and earn. Professional grade mobility for modern cities.
+        </p>
+
+        <div class="login-error" id="login-error"></div>
+
+        <form class="login-form" id="login-form">
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input 
+              type="text" 
+              id="username" 
+              placeholder="Enter your username"
+              autocomplete="username"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            >
+          </div>
+
+          <div class="login-button-group">
+            <button type="submit" class="login-button rider" id="rider-login">
+              Login as Rider
+            </button>
+            <button type="submit" class="login-button driver" id="driver-login">
+              Login as Driver
+            </button>
+          </div>
+        </form>
+
+        <div class="login-demo-hint">
+          <strong>Demo Credentials</strong><br>
+          Rider: <code>rider1</code> / <code>ride123</code><br>
+          Driver: <code>driver1</code> / <code>drive123</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Panel (shows on desktop) -->
+    <div class="login-visual">
+      <div class="login-visual-content">
+        <h2>Go. Move. Earn.</h2>
+        <p>
+          Join thousands of drivers and riders who trust RideBook for seamless urban mobility.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="login.js"></script>
+</body>
+</html>
