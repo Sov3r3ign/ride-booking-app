@@ -1,7 +1,3 @@
-// ==========================================
-// RIDEBOOK — LOGIN HANDLER
-// Session management & role-based routing
-// ==========================================
 
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
@@ -11,10 +7,6 @@ const driverLoginBtn = document.getElementById('driver-login');
 const loginError = document.getElementById('login-error');
 
 let selectedRole = null;
-
-// ==========================================
-// ROLE SELECTION
-// ==========================================
 
 riderLoginBtn.addEventListener('click', function (e) {
   e.preventDefault();
@@ -27,10 +19,6 @@ driverLoginBtn.addEventListener('click', function (e) {
   selectedRole = 'driver';
   handleLogin();
 });
-
-// ==========================================
-// LOGIN HANDLER
-// ==========================================
 
 async function handleLogin() {
   // Clear previous errors
