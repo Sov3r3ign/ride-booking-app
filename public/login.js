@@ -1,22 +1,11 @@
-
 const loginForm = document.getElementById('login-form');
 const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
-const riderLoginBtn = document.getElementById('rider-login');
-const driverLoginBtn = document.getElementById('driver-login');
+const loginBtn = document.getElementById('login-btn');
 const loginError = document.getElementById('login-error');
 
-let selectedRole = null;
-
-riderLoginBtn.addEventListener('click', function (e) {
+loginBtn.addEventListener('click', function (e) {
   e.preventDefault();
-  selectedRole = 'rider';
-  handleLogin();
-});
-
-driverLoginBtn.addEventListener('click', function (e) {
-  e.preventDefault();
-  selectedRole = 'driver';
   handleLogin();
 });
 
@@ -34,16 +23,9 @@ async function handleLogin() {
     return;
   }
 
-  if (!selectedRole) {
-    showError('Please select a role (Rider or Driver)');
-    return;
-  }
-
-  // Disable buttons during submission
-  riderLoginBtn.disabled = true;
-  driverLoginBtn.disabled = true;
-  riderLoginBtn.textContent = 'Logging in...';
-  driverLoginBtn.textContent = 'Logging in...';
+  // Disable button during submission
+  loginBtn.disabled = true;
+  loginBtn.textContent = 'Logging in...';
 
   try {
     // Send login request
@@ -60,11 +42,6 @@ async function handleLogin() {
 
     const user = await response.json();
 
-    // Verify role matches
-    if (user.role !== selectedRole) {
-      throw new Error(`${username} is registered as a ${user.role}, not a ${selectedRole}`);
-    }
-
     // Store session in localStorage
     const session = {
       user: user.name,
@@ -74,17 +51,14 @@ async function handleLogin() {
     };
     localStorage.setItem('ridebook_session', JSON.stringify(session));
 
-    // Redirect based on role
+    // Redirect based on the role returned by the server
     const redirectUrl = user.role === 'driver' ? '/driver.html' : '/index.html';
     window.location.href = redirectUrl;
 
   } catch (err) {
     showError(err.message || 'Login failed. Please try again.');
-    riderLoginBtn.disabled = false;
-    driverLoginBtn.disabled = false;
-    riderLoginBtn.textContent = 'Login as Rider';
-    driverLoginBtn.textContent = 'Login as Driver';
-    selectedRole = null;
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Login';
   }
 }
 
@@ -93,13 +67,10 @@ function showError(message) {
   loginError.classList.add('show');
 }
 
-// Allow Enter key to trigger login (with role defaulting to rider)
+// Allow Enter key to trigger login
 loginForm.addEventListener('keypress', function (e) {
   if (e.key === 'Enter') {
     e.preventDefault();
-    if (!selectedRole) {
-      selectedRole = 'rider'; // Default to rider
-    }
     handleLogin();
   }
 });

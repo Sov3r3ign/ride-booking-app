@@ -1,4 +1,3 @@
-
 //NAYII
 const session = getCurrentSession();
 if (!session || session.role !== 'driver') {
@@ -144,6 +143,9 @@ function createRideCard(ride) {
       <br>
       <strong> Dropoff</strong><br>
       ${ride.dropoff.lat.toFixed(4)}, ${ride.dropoff.lng.toFixed(4)}<br>
+      <br>
+      <strong> Distance</strong> ${ride.distance != null ? ride.distance.toFixed(2) + ' km' : 'N/A'}<br>
+      <strong> Fare</strong> ${ride.fare != null ? 'R' + ride.fare.toFixed(2) : 'N/A'}<br>
       <br>
       <small style="color: var(--color-text-tertiary); display: block; margin-top: 0.75rem;">
         ID: ${ride._id.slice(-6).toUpperCase()}

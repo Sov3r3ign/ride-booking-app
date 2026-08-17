@@ -22,7 +22,10 @@ const instruction = document.getElementById('instruction');
 const rideControls = document.getElementById('ride-controls');
 const requestBtn = document.getElementById('request-btn');
 const resetBtn = document.getElementById('reset-btn');
-const ridesList = document.getElementById('rides-list');
+const currentRideContainer = document.getElementById('current-ride');
+
+// Holds the current ride's markers/line so each new request replaces the last
+const currentRideLayerGroup = L.layerGroup().addTo(map);
 const loadingIndicator = document.getElementById('loading-indicator');
 
 
@@ -44,6 +47,43 @@ const redIcon = L.icon({
   shadowSize: [41, 41]
 });
 
+// ==========================================
+// REVERSE GEOCODING
+// ==========================================
+// Calls our own server's /api/geocode endpoint (same-origin, no CORS issues).
+// The server handles the Nominatim rate limit, retries, and a shared cache
+// across all users, so the client just needs its own small lookup cache to
+// avoid re-requesting the same coordinates on this page.
+const geocodeCache = new Map();
+
+async function getLocationName(lat, lng) {
+  const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+  if (geocodeCache.has(key)) {
+    return geocodeCache.get(key);
+  }
+
+  try {
+    const response = await fetch(`/api/geocode?lat=${lat}&lng=${lng}`);
+
+    if (!response.ok) {
+      throw new Error(`Geocoding failed: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const name = data.name || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+
+    geocodeCache.set(key, name);
+    return name;
+
+  } catch (err) {
+    console.error('Reverse geocoding error:', err);
+    const fallback = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+    geocodeCache.set(key, fallback);
+    return fallback;
+  }
+}
+
 function showLoading(show = true) {
   loadingIndicator.classList.toggle('active', show);
   requestBtn.disabled = show;
@@ -54,54 +94,68 @@ function updateInstruction(text, type = 'info') {
   instruction.textContent = text;
 }
 
-function addRideToList(ride) {
-  const emptyState = ridesList.querySelector('[style*="italic"]');
-  if (emptyState) emptyState.remove();
-
-  const li = document.createElement('li');
-  li.role = 'listitem';
-  
+function showCurrentRide(ride) {
   const statusEmoji = ride.status === 'pending' ? '🟠' : ride.status === 'accepted' ? '🟢' : '✓';
+  const pickupId = `pickup-${ride._id}`;
+  const dropoffId = `dropoff-${ride._id}`;
 
-  li.innerHTML = `
+  currentRideContainer.innerHTML = `
     <div class="ride-status-badge">
       <span class="status ${ride.status}">${ride.status.toUpperCase()}</span>
       <span class="ride-time">${statusEmoji} ${ride._id.slice(-6).toUpperCase()}</span>
     </div>
     <div style="margin-top: 0.75rem;">
       <strong> Pickup</strong><br>
-      <span style="font-family: var(--font-mono);">${ride.pickup.lat.toFixed(4)}, ${ride.pickup.lng.toFixed(4)}</span><br>
+      <span id="${pickupId}">Loading location...</span><br>
       <br>
       <strong> Dropoff</strong><br>
-      <span style="font-family: var(--font-mono);">${ride.dropoff.lat.toFixed(4)}, ${ride.dropoff.lng.toFixed(4)}</span>
+      <span id="${dropoffId}">Loading location...</span><br>
+      <br>
+      <strong> Distance</strong> ${ride.distance != null ? ride.distance.toFixed(2) + ' km' : 'N/A'}<br>
+      <strong> Fare</strong> ${ride.fare != null ? 'R' + ride.fare.toFixed(2) : 'N/A'}
     </div>
   `;
-  
-  ridesList.prepend(li);
+
+  getLocationName(ride.pickup.lat, ride.pickup.lng).then(name => {
+    const el = document.getElementById(pickupId);
+    if (el) el.textContent = name;
+  });
+
+  getLocationName(ride.dropoff.lat, ride.dropoff.lng).then(name => {
+    const el = document.getElementById(dropoffId);
+    if (el) el.textContent = name;
+  });
 }
 
 function addRideToMap(ride) {
+  // Clear the previous ride's markers/line — only the current request is shown
+  currentRideLayerGroup.clearLayers();
+
   // Pickup marker
-  L.circleMarker([ride.pickup.lat, ride.pickup.lng], {
+  const pickupMarker = L.circleMarker([ride.pickup.lat, ride.pickup.lng], {
     radius: 10,
     color: '#059669',
     fillColor: '#059669',
     fillOpacity: 0.8,
     weight: 2
-  }).addTo(map).bindPopup(
-    `<strong>Pickup</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`
-  );
+  }).addTo(currentRideLayerGroup).bindPopup(`<strong>Pickup</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`);
+
+  getLocationName(ride.pickup.lat, ride.pickup.lng).then(name => {
+    pickupMarker.setPopupContent(`<strong>Pickup</strong><br>${name}`);
+  });
 
   // Dropoff marker
-  L.circleMarker([ride.dropoff.lat, ride.dropoff.lng], {
+  const dropoffMarker = L.circleMarker([ride.dropoff.lat, ride.dropoff.lng], {
     radius: 10,
     color: '#dc2626',
     fillColor: '#dc2626',
     fillOpacity: 0.8,
     weight: 2
-  }).addTo(map).bindPopup(
-    `<strong>Dropoff</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`
-  );
+  }).addTo(currentRideLayerGroup).bindPopup(`<strong>Dropoff</strong><br>Ride ${ride._id.slice(-4).toUpperCase()}`);
+
+  getLocationName(ride.dropoff.lat, ride.dropoff.lng).then(name => {
+    dropoffMarker.setPopupContent(`<strong>Dropoff</strong><br>${name}`);
+  });
 
   // Connect with line
   L.polyline([
@@ -112,7 +166,7 @@ function addRideToMap(ride) {
     weight: 3,
     dashArray: '5, 10',
     opacity: 0.7
-  }).addTo(map);
+  }).addTo(currentRideLayerGroup);
 
   // Fit bounds
   const bounds = L.latLngBounds([
@@ -144,6 +198,10 @@ map.on('click', function (e) {
       .addTo(map)
       .bindPopup(' Pickup Location')
       .openPopup();
+
+    getLocationName(e.latlng.lat, e.latlng.lng).then(name => {
+      pickupMarker.setPopupContent(` Pickup: ${name}`);
+    });
     
     clickState = 'dropoff';
     updateInstruction('Now click to set your dropoff location');
@@ -155,6 +213,10 @@ map.on('click', function (e) {
       .addTo(map)
       .bindPopup(' Dropoff Location')
       .openPopup();
+
+    getLocationName(e.latlng.lat, e.latlng.lng).then(name => {
+      dropoffMarker.setPopupContent(` Dropoff: ${name}`);
+    });
     
     clickState = 'done';
     updateInstruction(' Ready! Click "Request Ride"', 'success');
@@ -195,8 +257,8 @@ requestBtn.addEventListener('click', async function () {
 
     const savedRide = await response.json();
     
-    addRideToList(savedRide);
     addRideToMap(savedRide);
+    showCurrentRide(savedRide);
     
     updateInstruction(' Ride requested! Driver will accept soon.', 'success');
     showLoading(false);
@@ -219,37 +281,8 @@ resetBtn.addEventListener('click', function () {
   updateInstruction('Click the map to set your pickup location');
 });
 
-async function loadRides() {
-  try {
-    const response = await fetch('/api/rides');
-    
-    if (!response.ok) {
-      throw new Error(`Failed to load rides: ${response.status}`);
-    }
-
-    const rides = await response.json();
-
-    const emptyState = ridesList.querySelector('[style*="italic"]');
-    if (emptyState && rides.length > 0) {
-      emptyState.remove();
-    }
-
-    rides.forEach(ride => {
-      addRideToList(ride);
-      addRideToMap(ride);
-    });
-
-  } catch (err) {
-    console.error('Error loading rides:', err);
-    updateInstruction(' Could not load rides. Check your connection.', 'warning');
-  }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
-  loadRides();
-  
-  // Refresh rides every 10 seconds
-  setInterval(loadRides, 10000);
+  // Rider page starts on a clean slate — past rides live on the History page
 });
 
 console.log(' RideBook Rider App Loaded');

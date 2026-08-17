@@ -1,100 +1,3 @@
-/*
-require("dotenv").config();
-
-const dns = require("node:dns");
-
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
-
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const Ride = require('./models/Ride');
-const path = require("path");
-
-const app = express();
-// Mock user accounts (no real auth — for demo purposes only)
-const USERS = [
-  { username: 'rider1', password: 'ride123', role: 'rider', name: 'Alex Rider' },
-  { username: 'driver1', password: 'drive123', role: 'driver', name: 'Sam Driver' }
-];
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.use(express.static(path.join(__dirname, "public")));
-
-app.get("/api/health", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Ride Booking API is running."
-  });
-});
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  const user = USERS.find(u => u.username === username && u.password === password);
-  if (!user) {
-    return res.status(401).json({ error: 'Invalid username or password' });
-  }
-  // Never send the password back to the client
-  const { password: _pw, ...safeUser } = user;
-  res.json(safeUser);
-});
-
-async function startServer() {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    
-    app.post('/api/rides', async (req, res) => {
-    try {
-    const { pickup, dropoff } = req.body;
-    const ride = new Ride({ pickup, dropoff });
-    const savedRide = await ride.save();
-    res.status(201).json(savedRide);
-    } catch (err) {
-    res.status(400).json({ error: err.message });
-    }
-    });
-
-    app.get('/api/rides', async (req, res) => {
-    try {
-    const rides = await Ride.find().sort({ createdAt: -1 });
-    res.json(rides);
-    } catch (err) {
-    res.status(500).json({ error: err.message });
-    }
-    });
-
-    app.patch('/api/rides/:id', async (req, res) => {
-    try {
-    const { status } = req.body;
-    const ride = await Ride.findByIdAndUpdate(
-    req.params.id,
-    { status },
-    { new: true, runValidators: true }
-    );
-    if (!ride) {
-    return res.status(404).json({ error: 'Ride not found' });
-    }
-    res.json(ride);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
-
-    console.log("Connected to MongoDB successfully.");
-
-    app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
-    });
-    } catch (error) {
-    console.error("MongoDB connection error:", error.message);
-  }
-}
-
-startServer();*/
-
 require("dotenv").config();
 
 const dns = require("node:dns");
@@ -109,9 +12,6 @@ const Ride = require('./models/Ride');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ==========================================
-// CORS CONFIGURATION
-// ==========================================
 // Allow requests from your Vercel frontend
 const allowedOrigins = [
   'http://localhost:3000',
@@ -221,8 +121,112 @@ app.post('/api/logout', (req, res) => {
 });
 
 // ==========================================
+// REVERSE GEOCODING PROXY
+// ==========================================
+// Nominatim requires a descriptive User-Agent, which browser fetch() calls
+// cannot set, and only allows ~1 request/second per client. Proxying through
+// our own server fixes both: we set the header here, and every user/tab
+// shares a single queue + cache instead of each hammering Nominatim directly.
+const geocodeCache = new Map();
+let geocodeQueue = Promise.resolve();
+const GEOCODE_DELAY_MS = 1100;
+
+function queueNominatimRequest(lat, lng) {
+  const task = geocodeQueue.then(() => fetchFromNominatim(lat, lng));
+
+  // Keep the queue moving (even after a failure) with a pause before the next request
+  geocodeQueue = task
+    .catch(() => {})
+    .then(() => new Promise(resolve => setTimeout(resolve, GEOCODE_DELAY_MS)));
+
+  return task;
+}
+
+async function fetchFromNominatim(lat, lng) {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+    {
+      headers: {
+        // Nominatim's usage policy requires a way to identify the app/contact
+        'User-Agent': 'RideBookApp/1.0 (demo project)'
+      }
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Nominatim error: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+app.get('/api/geocode', async (req, res) => {
+  const lat = parseFloat(req.query.lat);
+  const lng = parseFloat(req.query.lng);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng)) {
+    return res.status(400).json({ error: 'lat and lng query params are required' });
+  }
+
+  const key = `${lat.toFixed(5)},${lng.toFixed(5)}`;
+
+  if (geocodeCache.has(key)) {
+    return res.json({ name: geocodeCache.get(key) });
+  }
+
+  try {
+    const data = await queueNominatimRequest(lat, lng);
+    const address = data.address || {};
+
+    const parts = [
+      address.road || address.pedestrian || address.neighbourhood,
+      address.suburb || address.city_district,
+      address.city || address.town || address.village
+    ].filter(Boolean);
+
+    const name = parts.length > 0
+      ? parts.slice(0, 2).join(', ')
+      : (data.display_name
+          ? data.display_name.split(',').slice(0, 2).join(',').trim()
+          : `${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+
+    geocodeCache.set(key, name);
+    res.json({ name });
+
+  } catch (err) {
+    console.error('Reverse geocoding error:', err.message);
+    // Don't cache the failure — a later request for the same spot should retry
+    res.json({ name: `${lat.toFixed(4)}, ${lng.toFixed(4)}` });
+  }
+});
+
+// ==========================================
 // RIDES ENDPOINTS
 // ==========================================
+
+// ==========================================
+// DISTANCE & FARE CALCULATION
+// ==========================================
+const BASE_FARE = 25;      // flat starting fare (Rand)
+const RATE_PER_KM = 8;     // Rand per kilometer
+
+function calculateDistanceKm(pickup, dropoff) {
+  const R = 6371; // Earth's radius in km
+  const dLat = (dropoff.lat - pickup.lat) * Math.PI / 180;
+  const dLng = (dropoff.lng - pickup.lng) * Math.PI / 180;
+  const lat1 = pickup.lat * Math.PI / 180;
+  const lat2 = dropoff.lat * Math.PI / 180;
+
+  const a = Math.sin(dLat / 2) ** 2 +
+            Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
+}
+
+function calculateFare(distanceKm) {
+  return Math.round((BASE_FARE + distanceKm * RATE_PER_KM) * 100) / 100;
+}
 
 async function startServer() {
   try {
@@ -247,7 +251,10 @@ async function startServer() {
           });
         }
 
-        const ride = new Ride({ pickup, dropoff });
+        const distance = calculateDistanceKm(pickup, dropoff);
+        const fare = calculateFare(distance);
+
+        const ride = new Ride({ pickup, dropoff, distance, fare });
         const savedRide = await ride.save();
 
         res.status(201).json(savedRide);
@@ -343,6 +350,15 @@ async function startServer() {
 
     app.get('/driver.html', (req, res) => {
       res.sendFile(path.join(__dirname, 'public', 'driver.html'));
+    });
+
+    // Serve ride history page
+    app.get('/history', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'history.html'));
+    });
+
+    app.get('/history.html', (req, res) => {
+      res.sendFile(path.join(__dirname, 'public', 'history.html'));
     });
 
     // ==========================================

@@ -134,13 +134,16 @@
         </button>
       </div>
 
-      <section role="region" aria-labelledby="rides-heading">
-        <h2 id="rides-heading">Requested Rides</h2>
-        <ul id="rides-list" role="list" aria-label="History of requested rides">
-          <li style="color: var(--color-text-tertiary); font-style: italic; list-style: none;">
-            No rides requested yet
-          </li>
-        </ul>
+      <section role="region" aria-labelledby="current-ride-heading">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 id="current-ride-heading">Current Request</h2>
+          <a href="/history.html" style="font-size: 0.8rem; color: var(--color-accent-primary); text-decoration: none;">View History →</a>
+        </div>
+        <div id="current-ride">
+          <p style="color: var(--color-text-tertiary); font-style: italic;">
+            No active ride. Set a pickup and dropoff on the map to request one.
+          </p>
+        </div>
       </section>
     </aside>
 

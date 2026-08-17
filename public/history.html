@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RideBook - Ride history">
+  <meta name="theme-color" content="#000000">
+
+  <title>RideBook — Ride History</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    body {
+      overflow: auto;
+    }
+
+    #history-page {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: var(--spacing-2xl);
+    }
+
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .back-link {
+      font-size: 0.85rem;
+      color: var(--color-accent-primary);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    #history-list {
+      padding: 0;
+    }
+
+    #history-list li {
+      list-style: none;
+      margin-bottom: var(--spacing-lg);
+    }
+  </style>
+</head>
+
+<body>
+  <div id="history-page">
+    <div class="history-header">
+      <h1>Ride History</h1>
+      <a href="/index.html" class="back-link">← Back to Request a Ride</a>
+    </div>
+
+    <ul id="history-list" role="list" aria-label="History of requested rides">
+      <li style="color: var(--color-text-tertiary); font-style: italic;">
+        Loading ride history...
+      </li>
+    </ul>
+  </div>
+
+  <!-- Session & Auth Scripts -->
+  <script src="auth.js"></script>
+
+  <!-- History Script -->
+  <script src="history.js"></script>
+</body>
+</html>
