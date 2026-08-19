@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const rideSchema = new mongoose.Schema({
+
+  riderUsername: {
+    type: String,
+    required: true,
+    index: true
+  },
   pickup: {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
