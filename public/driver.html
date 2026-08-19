@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -189,7 +189,7 @@
 
 <body>
   <div id="driver-dashboard" role="main" aria-label="Driver dashboard for managing rides">
-    <!-- User Badge -->
+    <!-- User Badge --
     <div class="user-badge" id="user-badge" style="display: none;">
       <span id="user-name">Driver</span>
       <button class="logout-btn" id="logout-btn" aria-label="Logout">Logout</button>
@@ -237,8 +237,342 @@
     </div>
   </div>
 
+  <!-- Session & Auth Scripts --
+  <script src="auth.js"></script>
+
+  <!-- Driver Script --
+  <script src="driver.js"></script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RideBook Driver Dashboard - Manage pending rides">
+  <meta name="theme-color" content="#000000">
+  
+  <title>RideBook — Driver Dashboard</title>
+
+  <!-- Leaflet Map Library -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="">
+
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body {
+      overflow: auto;
+    }
+
+    #driver-dashboard {
+      overflow: auto;
+      max-height: 100vh;
+      position: relative;
+    }
+
+    /* Status indicator animation */
+    .ride-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .status-pulse.pending {
+      background: var(--color-accent-warning);
+    }
+
+    .status-pulse.accepted {
+      background: var(--color-accent-success);
+    }
+
+    @keyframes pulse-animation {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Header styling */
+    .driver-header {
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .driver-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .driver-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .stat-box {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-accent-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Time indicator */
+    .ride-time {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      margin-top: var(--spacing-sm);
+      font-family: var(--font-mono);
+    }
+
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-2xl);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-lg);
+      opacity: 0.5;
+    }
+
+    /* User badge */
+    .user-badge {
+      position: fixed;
+      top: var(--spacing-lg);
+      right: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      background: var(--color-background);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      z-index: 10;
+      box-shadow: var(--shadow-md);
+    }
+
+    .user-badge span {
+      font-weight: 600;
+      color: var(--color-accent-primary);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--color-border);
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: var(--transition-fast);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-secondary);
+    }
+
+    .logout-btn:hover {
+      background: var(--color-primary);
+      color: var(--color-text-inverse);
+      border-color: var(--color-primary);
+    }
+
+    /* Auto-refresh indicator */
+    .auto-refresh-status {
+      position: fixed;
+      bottom: var(--spacing-lg);
+      right: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-background);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .refresh-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent-success);
+      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Requested-rides map */
+    .driver-map-wrap {
+      padding: 0 var(--spacing-2xl);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    #driver-map {
+      height: 380px;
+      width: 100%;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-md);
+      background: #e5e3df;
+    }
+
+    .driver-map-legend {
+      display: flex;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-sm);
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+    }
+
+    .driver-map-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .driver-map-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .driver-map-legend .dot-pending { background: var(--color-accent-warning); }
+    .driver-map-legend .dot-accepted { background: var(--color-accent-success); }
+
+    /* Leaflet popup content styling to match the dashboard's cards */
+    .ride-popup {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      min-width: 170px;
+    }
+
+    .ride-popup .status {
+      display: inline-block;
+      margin-bottom: 0.4rem;
+    }
+
+    .ride-popup button {
+      margin-top: 0.5rem;
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.4rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--color-text-inverse);
+    }
+
+    .ride-popup .accept-btn { background: var(--color-accent-success); }
+    .ride-popup .complete-btn { background: var(--color-accent-primary); }
+  </style>
+</head>
+
+<body>
+  <div id="driver-dashboard" role="main" aria-label="Driver dashboard for managing rides">
+    <!-- User Badge -->
+    <div class="user-badge" id="user-badge" style="display: none;">
+      <span id="user-name">Driver</span>
+      <button class="logout-btn" id="logout-btn" aria-label="Logout">Logout</button>
+    </div>
+
+    <header class="driver-header">
+      <div class="driver-header-top">
+        <div>
+          <h1>Driver Dashboard</h1>
+          <p>Manage pending and accepted rides</p>
+        </div>
+      </div>
+      
+      <div class="driver-stats">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-accepted">0</div>
+          <div class="stat-label">Accepted</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-completed">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="driver-map-wrap">
+      <div id="driver-map" role="region" aria-label="Map of requested ride pickup locations"></div>
+      <div class="driver-map-legend">
+        <span><i class="dot-pending"></i> Pending</span>
+        <span><i class="dot-accepted"></i> Accepted (by you)</span>
+      </div>
+    </div>
+
+    <section role="region" aria-labelledby="rides-heading" aria-live="polite" aria-label="Active rides">
+      <div style="padding: 0 var(--spacing-2xl);">
+        <div id="driver-rides" role="list" aria-label="List of active rides">
+          <div class="empty-state">
+            <p style="color: var(--color-text-tertiary); font-style: italic;">
+              Checking for available rides...
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="auto-refresh-status">
+      <div class="refresh-dot"></div>
+      <span>Live updates</span>
+    </div>
+  </div>
+
   <!-- Session & Auth Scripts -->
   <script src="auth.js"></script>
+
+  <!-- Leaflet Map Library -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
 
   <!-- Driver Script -->
   <script src="driver.js"></script>
