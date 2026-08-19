@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RideBook - Create an account">
+  <meta name="theme-color" content="#000000">
+
+  <title>RideBook — Sign Up</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <div class="login-container">
+    <!-- Sign Up Form Panel -->
+    <div class="login-panel">
+      <div class="login-form-container">
+        <div class="login-logo">RideBook</div>
+        <p class="login-tagline">
+          Create an account to request rides or start driving and earning.
+        </p>
+
+        <div class="login-error" id="signup-error"></div>
+
+        <form class="login-form" id="signup-form">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input
+              type="text"
+              id="name"
+              placeholder="Enter your full name"
+              autocomplete="name"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              placeholder="Choose a username"
+              autocomplete="username"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              placeholder="Create a password"
+              autocomplete="new-password"
+              required
+            >
+            <span class="form-hint">At least 6 characters</span>
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input
+              type="password"
+              id="confirm-password"
+              placeholder="Re-enter your password"
+              autocomplete="new-password"
+              required
+            >
+          </div>
+
+          <div class="form-group">
+            <label>I want to</label>
+            <div class="role-selector" role="radiogroup" aria-label="Account type">
+              <label class="role-option">
+                <input type="radio" name="role" value="rider" checked>
+                <span class="role-option-name">Ride</span>
+                <span class="role-option-desc">Request rides</span>
+              </label>
+              <label class="role-option">
+                <input type="radio" name="role" value="driver">
+                <span class="role-option-name">Drive</span>
+                <span class="role-option-desc">Accept rides &amp; earn</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="login-button-group">
+            <button type="submit" class="login-button" id="signup-btn">
+              Create Account
+            </button>
+          </div>
+        </form>
+
+        <div class="login-signup-cta">
+          Already have an account? <a href="/login.html">Log in</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Visual Panel (shows on desktop) -->
+    <div class="login-visual">
+      <div class="login-visual-content">
+        <h2>Join RideBook</h2>
+        <p>
+          Whether you need a ride or want to drive one, it only takes a minute to get started.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script src="signup.js"></script>
+</body>
+</html>

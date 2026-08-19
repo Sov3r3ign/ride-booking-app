@@ -230,6 +230,113 @@ body {
   font-family: var(--font-mono);
 }
 
+.login-links {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--spacing-md);
+  font-size: 0.85rem;
+}
+
+.login-links a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.login-links a:hover {
+  color: var(--color-text-inverse);
+  text-decoration: underline;
+}
+
+.login-signup-cta {
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+}
+
+.login-signup-cta a {
+  color: var(--color-text-inverse);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.login-signup-cta a:hover {
+  text-decoration: underline;
+}
+
+.login-success {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.3);
+  border-radius: var(--radius-lg);
+  color: #34d399;
+  font-size: 0.875rem;
+  margin-bottom: var(--spacing-lg);
+  display: none;
+}
+
+.login-success.show {
+  display: block;
+}
+
+.login-success a {
+  color: #6ee7b7;
+  font-weight: 700;
+}
+
+.form-hint {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: var(--spacing-sm);
+}
+
+.role-selector {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.role-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--spacing-md);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.role-option input[type="radio"] {
+  margin: 0 0 4px 0;
+  accent-color: var(--color-accent-primary);
+  cursor: pointer;
+}
+
+.role-option:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.role-option:has(input:checked) {
+  border-color: var(--color-accent-primary);
+  background: rgba(30, 58, 138, 0.15);
+}
+
+.role-option-name {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.role-option-desc {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 .login-visual {
   flex: 1;
   background: linear-gradient(135deg, var(--color-accent-primary) 0%, var(--color-accent-purple) 100%);
@@ -376,6 +483,40 @@ body {
 .instruction.success {
   background: linear-gradient(135deg, rgba(5, 150, 105, 0.05), rgba(124, 58, 237, 0.05));
   border-left-color: var(--color-accent-success);
+}
+
+.use-location-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-accent-primary);
+  font-weight: 700;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.use-location-btn:hover:not(:disabled) {
+  background: var(--color-accent-primary);
+  color: var(--color-text-inverse);
+  border-color: var(--color-accent-primary);
+}
+
+.use-location-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.use-location-btn svg {
+  flex: 0 0 auto;
 }
 
 #ride-controls {
@@ -533,6 +674,15 @@ body {
   font-size: 1.1rem;
   font-weight: 800;
   color: var(--color-accent-success);
+}
+
+.ride-trip-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
 }
 
 /* While the panel is expanded there's more vertical room to work with —
