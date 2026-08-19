@@ -308,7 +308,7 @@ body {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
-  height: 180px;
+  height: 224px;
   background: var(--color-surface);
   border-left: 1px solid var(--color-border);
   border-right: 1px solid var(--color-border);
@@ -319,6 +319,19 @@ body {
   align-items: stretch;
   overflow: hidden;
   box-shadow: var(--shadow-md);
+  /* Booking panel slides up / expands smoothly when a ride is being
+     chosen, and eases back down once it's confirmed or dismissed. */
+  transition: height var(--transition-slow), box-shadow var(--transition-slow);
+  will-change: height;
+}
+
+/* Expanded state: entered once pickup + dropoff are both set, so the
+   rider can comfortably see ride options, pickup/dropoff, price and the
+   confirm button. Takes up roughly 45-60% of the viewport while the map
+   stays visible above it. */
+#sidebar.panel-expanded {
+  height: 50vh;
+  box-shadow: var(--shadow-xl);
 }
 
 #sidebar header {
@@ -342,7 +355,7 @@ body {
 }
 
 .instruction {
-  flex: 0 0 260px;
+  flex: 0 0 200px;
   align-self: center;
   padding: var(--spacing-md);
   font-size: 0.9rem;
@@ -366,12 +379,14 @@ body {
 }
 
 #ride-controls {
-  flex: 0 0 160px;
+  flex: 0 0 400px;
   align-self: center;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  padding: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
   transition: var(--transition-base);
 }
 
@@ -379,17 +394,161 @@ body {
   display: none;
 }
 
+.ride-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.ride-summary-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.ride-summary-dot {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.ride-summary-dot.pickup {
+  background: #059669;
+}
+
+.ride-summary-dot.dropoff {
+  background: #dc2626;
+}
+
+.ride-summary-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.25;
+}
+
+.ride-summary-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+}
+
+.ride-summary-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ride-controls-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
 #request-btn, #reset-btn {
   flex: 1;
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: var(--spacing-sm) var(--spacing-lg);
   border: none;
   border-radius: var(--radius-lg);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: var(--transition-base);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.ride-type-selector {
+  display: flex;
+  flex-direction: row;
+  gap: 6px;
+}
+
+.ride-type-option {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.ride-type-option input[type="radio"] {
+  margin: 0 0 2px 0;
+  accent-color: var(--color-accent-primary);
+  cursor: pointer;
+}
+
+.ride-type-option:hover {
+  border-color: var(--color-accent-primary);
+}
+
+.ride-type-option:has(input:checked) {
+  border-color: var(--color-accent-primary);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.ride-type-name {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.ride-type-seats {
+  font-size: 0.68rem;
+  color: var(--color-text-tertiary);
+}
+
+.ride-fare-estimate {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+}
+
+.ride-fare-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+}
+
+.ride-fare-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-accent-success);
+}
+
+/* While the panel is expanded there's more vertical room to work with —
+   let the ride options breathe a bit more so they're easier to read and
+   tap. */
+#sidebar.panel-expanded #ride-controls {
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+#sidebar.panel-expanded .ride-type-option {
+  padding: var(--spacing-sm) var(--spacing-xs);
+}
+
+#sidebar.panel-expanded .ride-fare-value {
+  font-size: 1.3rem;
 }
 
 #request-btn {
@@ -505,6 +664,33 @@ body {
 .status.completed {
   background: rgba(30, 58, 138, 0.1);
   color: #1e3a8a;
+}
+
+.status.cancelled {
+  background: rgba(220, 38, 38, 0.1);
+  color: #991b1b;
+}
+
+.cancel-ride-btn {
+  background: none;
+  border: 1px solid #dc2626;
+  color: #dc2626;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.cancel-ride-btn:hover:not(:disabled) {
+  background: #dc2626;
+  color: var(--color-text-inverse);
+}
+
+.cancel-ride-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .ride-time {
@@ -733,16 +919,28 @@ body {
 @media (max-width: 768px) {
   #sidebar {
     flex-direction: column;
-    height: auto;
+    /* Explicit (not "auto") heights so the expand/collapse transition
+       above can actually animate on mobile too. */
+    height: 190px;
     max-height: 55vh;
     max-width: 100%;
     border-left: none;
     border-right: none;
-    border-radius: 0;
+    /* Rounded top corners so the panel reads as a bottom sheet floating
+       over the map, edge-to-edge width and all. */
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    overflow-y: auto;
+  }
+
+  /* On mobile the expanded panel takes ~55% of the screen (within the
+     45-60% target) and scrolls internally if content overflows. */
+  #sidebar.panel-expanded {
+    height: 55vh;
   }
 
   #map {
     max-height: 45vh;
+    transition: max-height var(--transition-slow);
   }
 
   #sidebar header {
@@ -762,7 +960,7 @@ body {
 
   #ride-controls {
     flex: 0 0 auto;
-    flex-direction: row;
+    flex-direction: column;
   }
 
   #sidebar section {

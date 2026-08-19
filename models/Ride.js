@@ -9,16 +9,27 @@ const rideSchema = new mongoose.Schema({
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
   },
+  status: {
+    type: String,
+    enum: ['pending', 'accepted', 'completed','cancelled'],
+    default: 'pending'
+  },
+  
+  rideType: {
+    type: String,
+    enum: ['ride', 'rideL', 'rideXL'],
+    default: 'ride'
+  },
+  seats: {
+    type: Number,
+    default: 2
+  },
+
   distance: {
     type: Number,
   },
   fare: {
     type: Number,
-  },
-  status: {
-    type: String,
-    enum: ['pending', 'accepted', 'completed'],
-    default: 'pending'
   },
   createdAt: {
     type: Date,
