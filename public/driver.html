@@ -7,255 +7,8 @@
   <meta name="theme-color" content="#000000">
   
   <title>RideBook — Driver Dashboard</title>
-  
-  <link rel="stylesheet" href="style.css">
-  
-  <style>
-    body {
-      overflow: auto;
-    }
 
-    #driver-dashboard {
-      overflow: auto;
-      max-height: 100vh;
-      position: relative;
-    }
-
-    /* Status indicator animation */
-    .ride-status-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .status-pulse {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    .status-pulse.pending {
-      background: var(--color-accent-warning);
-    }
-
-    .status-pulse.accepted {
-      background: var(--color-accent-success);
-    }
-
-    @keyframes pulse-animation {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.5;
-      }
-    }
-
-    /* Header styling */
-    .driver-header {
-      margin-bottom: var(--spacing-2xl);
-      padding-bottom: var(--spacing-xl);
-      border-bottom: 1px solid var(--color-border);
-    }
-
-    .driver-header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: var(--spacing-lg);
-    }
-
-    .driver-stats {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: var(--spacing-lg);
-      margin-top: var(--spacing-lg);
-      padding-top: var(--spacing-lg);
-      border-top: 1px solid var(--color-border);
-    }
-
-    .stat-box {
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--spacing-md);
-      text-align: center;
-    }
-
-    .stat-value {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--color-accent-primary);
-      margin-bottom: var(--spacing-xs);
-    }
-
-    .stat-label {
-      font-size: 0.75rem;
-      color: var(--color-text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    /* Time indicator */
-    .ride-time {
-      display: block;
-      font-size: 0.75rem;
-      color: var(--color-text-tertiary);
-      margin-top: var(--spacing-sm);
-      font-family: var(--font-mono);
-    }
-
-    /* Empty state styling */
-    .empty-state {
-      text-align: center;
-      padding: var(--spacing-2xl);
-    }
-
-    .empty-state-icon {
-      font-size: 3rem;
-      margin-bottom: var(--spacing-lg);
-      opacity: 0.5;
-    }
-
-    /* User badge */
-    .user-badge {
-      position: fixed;
-      top: var(--spacing-lg);
-      right: var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-md);
-      background: var(--color-background);
-      padding: var(--spacing-sm) var(--spacing-md);
-      border-radius: var(--radius-full);
-      border: 1px solid var(--color-border);
-      font-size: 0.85rem;
-      z-index: 10;
-      box-shadow: var(--shadow-md);
-    }
-
-    .user-badge span {
-      font-weight: 600;
-      color: var(--color-accent-primary);
-    }
-
-    .logout-btn {
-      background: none;
-      border: 1px solid var(--color-border);
-      padding: 0.375rem 0.75rem;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: var(--transition-fast);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--color-text-secondary);
-    }
-
-    .logout-btn:hover {
-      background: var(--color-primary);
-      color: var(--color-text-inverse);
-      border-color: var(--color-primary);
-    }
-
-    /* Auto-refresh indicator */
-    .auto-refresh-status {
-      position: fixed;
-      bottom: var(--spacing-lg);
-      right: var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      gap: var(--spacing-sm);
-      padding: var(--spacing-sm) var(--spacing-md);
-      background: var(--color-background);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      font-size: 0.75rem;
-      color: var(--color-text-tertiary);
-      box-shadow: var(--shadow-md);
-    }
-
-    .refresh-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--color-accent-success);
-      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-  </style>
-</head>
-
-<body>
-  <div id="driver-dashboard" role="main" aria-label="Driver dashboard for managing rides">
-    <!-- User Badge --
-    <div class="user-badge" id="user-badge" style="display: none;">
-      <span id="user-name">Driver</span>
-      <button class="logout-btn" id="logout-btn" aria-label="Logout">Logout</button>
-    </div>
-
-    <header class="driver-header">
-      <div class="driver-header-top">
-        <div>
-          <h1>Driver Dashboard</h1>
-          <p>Manage pending and accepted rides</p>
-        </div>
-      </div>
-      
-      <div class="driver-stats">
-        <div class="stat-box">
-          <div class="stat-value" id="stat-pending">0</div>
-          <div class="stat-label">Pending</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="stat-accepted">0</div>
-          <div class="stat-label">Accepted</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="stat-completed">0</div>
-          <div class="stat-label">Completed</div>
-        </div>
-      </div>
-    </header>
-
-    <section role="region" aria-labelledby="rides-heading" aria-live="polite" aria-label="Active rides">
-      <div style="padding: 0 var(--spacing-2xl);">
-        <div id="driver-rides" role="list" aria-label="List of active rides">
-          <div class="empty-state">
-            <p style="color: var(--color-text-tertiary); font-style: italic;">
-              Checking for available rides...
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-    
-    <div class="auto-refresh-status">
-      <div class="refresh-dot"></div>
-      <span>Live updates</span>
-    </div>
-  </div>
-
-  <!-- Session & Auth Scripts --
-  <script src="auth.js"></script>
-
-  <!-- Driver Script --
-  <script src="driver.js"></script>
-</body>
-</html> -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="RideBook Driver Dashboard - Manage pending rides">
-  <meta name="theme-color" content="#000000">
-  
-  <title>RideBook — Driver Dashboard</title>
-
-  <!-- Leaflet Map Library -->
+  <!-- Leaflet Map Library --
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -509,7 +262,7 @@
 
 <body>
   <div id="driver-dashboard" role="main" aria-label="Driver dashboard for managing rides">
-    <!-- User Badge -->
+    <!-- User Badge --
     <div class="user-badge" id="user-badge" style="display: none;">
       <span id="user-name">Driver</span>
       <button class="logout-btn" id="logout-btn" aria-label="Logout">Logout</button>
@@ -562,6 +315,979 @@
     <div class="auto-refresh-status">
       <div class="refresh-dot"></div>
       <span>Live updates</span>
+    </div>
+  </div>
+
+  <!-- Session & Auth Scripts --
+  <script src="auth.js"></script>
+
+  <!-- Leaflet Map Library --
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+  <!-- Driver Script --
+  <script src="driver.js"></script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RideBook Driver Dashboard - Manage pending rides">
+  <meta name="theme-color" content="#000000">
+  
+  <title>RideBook — Driver Dashboard</title>
+
+  <!-- Leaflet Map Library -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin="">
+
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body {
+      overflow: auto;
+      background: var(--color-background);
+    }
+
+    #driver-dashboard {
+      overflow: auto;
+      max-height: 100vh;
+      position: relative;
+    }
+
+    /* Status indicator animation */
+    .ride-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .status-pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .status-pulse.pending {
+      background: var(--color-accent-warning);
+    }
+
+    .status-pulse.accepted {
+      background: var(--color-accent-success);
+    }
+
+    @keyframes pulse-animation {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Header styling */
+    .driver-header {
+      margin-bottom: var(--spacing-2xl);
+      padding-bottom: var(--spacing-xl);
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .driver-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .driver-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-lg);
+      padding-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .stat-box {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-md);
+      text-align: center;
+      transition: var(--transition-fast);
+    }
+
+    .stat-box:hover {
+      border-color: var(--color-accent-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--color-accent-primary);
+      margin-bottom: var(--spacing-xs);
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Time indicator */
+    .ride-time {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      margin-top: var(--spacing-sm);
+      font-family: var(--font-mono);
+    }
+
+    /* Empty state styling */
+    .empty-state {
+      text-align: center;
+      padding: var(--spacing-2xl);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: var(--spacing-lg);
+      opacity: 0.5;
+    }
+
+    /* User badge */
+    .user-badge {
+      position: fixed;
+      top: var(--spacing-lg);
+      right: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      background: var(--color-surface);
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--radius-full);
+      border: 1px solid var(--color-border);
+      font-size: 0.85rem;
+      z-index: 10;
+      box-shadow: var(--shadow-md);
+    }
+
+    .user-badge span {
+      font-weight: 600;
+      color: var(--color-accent-primary);
+    }
+
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--color-border);
+      padding: 0.375rem 0.75rem;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      transition: var(--transition-fast);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-secondary);
+    }
+
+    .logout-btn:hover {
+      background: var(--color-accent-danger);
+      color: var(--color-text-inverse);
+      border-color: var(--color-accent-danger);
+    }
+
+    /* Auto-refresh indicator */
+    .auto-refresh-status {
+      position: fixed;
+      bottom: var(--spacing-lg);
+      right: var(--spacing-lg);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .refresh-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-accent-success);
+      animation: pulse-animation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Requested-rides map */
+    .driver-map-wrap {
+      padding: 0 var(--spacing-2xl);
+      margin-bottom: var(--spacing-2xl);
+    }
+
+    #driver-map {
+      height: 380px;
+      width: 100%;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-md);
+      background: #0B1B30;
+    }
+
+    /* Dark map tile overlay fix */
+    #driver-map .leaflet-tile-pane {
+      filter: brightness(0.85) contrast(1.1);
+    }
+
+    #driver-map .leaflet-control-zoom {
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    #driver-map .leaflet-control-zoom a {
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      border-color: var(--color-border);
+    }
+
+    #driver-map .leaflet-control-zoom a:hover {
+      background: var(--color-card);
+    }
+
+    .driver-map-legend {
+      display: flex;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-sm);
+      font-size: 0.75rem;
+      color: var(--color-text-tertiary);
+    }
+
+    .driver-map-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .driver-map-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .driver-map-legend .dot-pending { background: var(--color-accent-warning); }
+    .driver-map-legend .dot-accepted { background: var(--color-accent-success); }
+    .driver-map-legend .dot-dropoff { background: #dc2626; }
+
+    .driver-map-legend .line-route {
+      width: 16px;
+      height: 3px;
+      border-radius: 2px;
+      background: #7c3aed;
+    }
+
+    /* Leaflet popup content styling to match the dashboard's cards */
+    .ride-popup {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      min-width: 170px;
+      background: var(--color-card);
+      color: var(--color-text-primary);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+    }
+
+    .ride-popup .status {
+      display: inline-block;
+      margin-bottom: 0.4rem;
+    }
+
+    .ride-popup button {
+      margin-top: 0.5rem;
+      width: 100%;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0.4rem 0.75rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--color-text-inverse);
+    }
+
+    .ride-popup .accept-btn { 
+      background: var(--color-accent-primary);
+    }
+    .ride-popup .accept-btn:hover {
+      background: #00D4B8;
+    }
+    .ride-popup .complete-btn { 
+      background: var(--color-accent-blue);
+    }
+    .ride-popup .complete-btn:hover {
+      background: #6BA0FF;
+    }
+
+    /* Leaflet popup arrow color for dark theme */
+    .leaflet-popup-tip {
+      background: var(--color-card) !important;
+    }
+    .leaflet-popup-content-wrapper {
+      background: var(--color-card) !important;
+      color: var(--color-text-primary) !important;
+      border-radius: var(--radius-md) !important;
+      border: 1px solid var(--color-border);
+    }
+
+    /* Ride cards in driver dashboard */
+    .ride-card {
+      background: var(--color-card);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg);
+      transition: var(--transition-base);
+      animation: slideUp 300ms ease-out;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .ride-card:hover {
+      border-color: var(--color-accent-primary);
+      box-shadow: var(--shadow-md);
+    }
+
+    .ride-card .status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .ride-card .status.pending {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--color-accent-warning);
+    }
+
+    .ride-card .status.accepted {
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--color-accent-success);
+    }
+
+    .ride-card .status.completed {
+      background: rgba(79, 140, 255, 0.15);
+      color: var(--color-accent-blue);
+    }
+
+    .ride-card .status.cancelled {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--color-accent-danger);
+    }
+
+    .coords {
+      font-size: 0.85rem;
+      line-height: 1.8;
+      color: var(--color-text-secondary);
+      margin: var(--spacing-md) 0;
+      font-family: var(--font-mono);
+    }
+
+    .coords strong {
+      color: var(--color-text-primary);
+      display: block;
+      margin-top: var(--spacing-md);
+    }
+
+    .accept-btn, .complete-btn {
+      width: 100%;
+      margin-top: var(--spacing-lg);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition-base);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .accept-btn {
+      background: linear-gradient(135deg, var(--color-accent-primary), #00D4B8);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-md);
+    }
+
+    .accept-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, #00D4B8, #00E8CC);
+    }
+
+    .complete-btn {
+      background: linear-gradient(135deg, var(--color-accent-blue), #6BA0FF);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-md);
+    }
+
+    .complete-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, #6BA0FF, #8BB4FF);
+    }
+
+    .accept-btn:disabled, .complete-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    #driver-rides {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+
+    @media (min-width: 768px) {
+      #driver-rides {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      #driver-rides {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* ==========================================
+       NEW RIDE REQUEST OVERLAY
+       ========================================== */
+    .ride-request-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(7, 20, 38, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+      animation: fadeIn 300ms ease-out;
+    }
+
+    .ride-request-overlay.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .ride-request-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      max-width: 480px;
+      width: 90%;
+      padding: var(--spacing-2xl);
+      box-shadow: var(--shadow-xl);
+      animation: slideUp 400ms ease-out;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ride-request-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--color-accent-warning), var(--color-accent-primary));
+      animation: pulse-gradient 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-gradient {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .ride-request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--spacing-lg);
+      padding-top: var(--spacing-md);
+    }
+
+    .ride-request-rider {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+
+    .rider-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-inverse);
+      flex-shrink: 0;
+    }
+
+    .rider-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rider-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .rider-username {
+      font-size: 0.8rem;
+      color: var(--color-text-tertiary);
+    }
+
+    .rider-rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.85rem;
+      color: var(--color-accent-warning);
+      margin-top: 2px;
+    }
+
+    .rider-rating span {
+      color: var(--color-text-secondary);
+      margin-left: 2px;
+    }
+
+    .ride-request-badge {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--color-accent-warning);
+      padding: 0.25rem 0.75rem;
+      border-radius: var(--radius-full);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      animation: pulse-badge 2s ease-in-out infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes pulse-badge {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .ride-request-details {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+      margin: var(--spacing-lg) 0;
+    }
+
+    .ride-request-location {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+    }
+
+    .location-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-weight: 700;
+    }
+
+    .location-icon.pickup {
+      background: var(--color-accent-success);
+      color: var(--color-text-inverse);
+    }
+
+    .location-icon.dropoff {
+      background: var(--color-accent-danger);
+      color: var(--color-text-inverse);
+    }
+
+    .location-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .location-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-tertiary);
+    }
+
+    .location-address {
+      font-size: 0.9rem;
+      color: var(--color-text-primary);
+      word-break: break-word;
+    }
+
+    .ride-request-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--spacing-md);
+      padding: var(--spacing-md) 0;
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      margin: var(--spacing-md) 0;
+    }
+
+    .meta-item {
+      text-align: center;
+    }
+
+    .meta-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+
+    .meta-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-text-tertiary);
+      margin-top: 2px;
+    }
+
+    .ride-request-fare {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      background: var(--color-card);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+    }
+
+    .fare-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .fare-amount {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--color-accent-primary);
+    }
+
+    .ride-request-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+
+    .ride-request-actions button {
+      flex: 1;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border: none;
+      border-radius: var(--radius-lg);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: var(--transition-base);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .decline-btn {
+      background: var(--color-card);
+      color: var(--color-text-secondary);
+      border: 1px solid var(--color-border) !important;
+    }
+
+    .decline-btn:hover:not(:disabled) {
+      background: var(--color-accent-danger);
+      color: var(--color-text-inverse);
+      border-color: var(--color-accent-danger) !important;
+    }
+
+    .accept-ride-btn {
+      background: linear-gradient(135deg, var(--color-accent-primary), #00D4B8);
+      color: var(--color-text-inverse);
+      box-shadow: var(--shadow-md);
+    }
+
+    .accept-ride-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      background: linear-gradient(135deg, #00D4B8, #00E8CC);
+    }
+
+    .ride-request-actions button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Sound wave animation for new request */
+    .sound-wave {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 20px;
+      margin-left: var(--spacing-md);
+    }
+
+    .sound-wave span {
+      display: block;
+      width: 3px;
+      height: 6px;
+      background: var(--color-accent-warning);
+      border-radius: 2px;
+      animation: wave 1.2s ease-in-out infinite;
+    }
+
+    .sound-wave span:nth-child(2) {
+      animation-delay: 0.2s;
+      height: 10px;
+    }
+
+    .sound-wave span:nth-child(3) {
+      animation-delay: 0.4s;
+      height: 16px;
+    }
+
+    .sound-wave span:nth-child(4) {
+      animation-delay: 0.6s;
+      height: 10px;
+    }
+
+    .sound-wave span:nth-child(5) {
+      animation-delay: 0.8s;
+      height: 6px;
+    }
+
+    @keyframes wave {
+      0%, 100% {
+        transform: scaleY(0.5);
+      }
+      50% {
+        transform: scaleY(1);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .ride-request-card {
+        padding: var(--spacing-lg);
+        width: 95%;
+      }
+
+      .ride-request-meta {
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-sm);
+      }
+
+      .ride-request-actions {
+        flex-direction: column;
+      }
+
+      .ride-request-header {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .ride-request-badge {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="driver-dashboard" role="main" aria-label="Driver dashboard for managing rides">
+    <!-- User Badge -->
+    <div class="user-badge" id="user-badge" style="display: none;">
+      <span id="user-name">Driver</span>
+      <button class="logout-btn" id="logout-btn" aria-label="Logout">Logout</button>
+    </div>
+
+    <header class="driver-header">
+      <div class="driver-header-top">
+        <div>
+          <h1>Driver Dashboard</h1>
+          <p>Manage pending and accepted rides</p>
+        </div>
+      </div>
+      
+      <div class="driver-stats">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-accepted">0</div>
+          <div class="stat-label">Accepted</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-completed">0</div>
+          <div class="stat-label">Completed</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="driver-map-wrap">
+      <div id="driver-map" role="region" aria-label="Map of requested ride pickup locations"></div>
+      <div class="driver-map-legend">
+        <span><i class="dot-pending"></i> Pending</span>
+        <span><i class="dot-accepted"></i> Accepted (by you)</span>
+        <span><i class="dot-dropoff"></i> Dropoff</span>
+        <span><i class="line-route"></i> Route</span>
+      </div>
+    </div>
+
+    <section role="region" aria-labelledby="rides-heading" aria-live="polite" aria-label="Active rides">
+      <div style="padding: 0 var(--spacing-2xl);">
+        <div id="driver-rides" role="list" aria-label="List of active rides">
+          <div class="empty-state">
+            <p style="color: var(--color-text-tertiary); font-style: italic;">
+              Checking for available rides...
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <div class="auto-refresh-status">
+      <div class="refresh-dot"></div>
+      <span>Live updates</span>
+    </div>
+  </div>
+
+  <!-- New Ride Request Overlay -->
+  <div class="ride-request-overlay" id="ride-request-overlay">
+    <div class="ride-request-card" id="ride-request-card">
+      <div class="ride-request-header">
+        <div class="ride-request-rider">
+          <div class="rider-avatar" id="rider-avatar">AR</div>
+          <div class="rider-info">
+            <span class="rider-name" id="rider-name">Alex Rider</span>
+            <span class="rider-username" id="rider-username">@rider1</span>
+            <div class="rider-rating">
+              ★ <span id="rider-rating">4.8</span>
+            </div>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center;">
+          <span class="ride-request-badge">🟠 New Request</span>
+          <div class="sound-wave">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ride-request-details">
+        <div class="ride-request-location">
+          <div class="location-icon pickup">▲</div>
+          <div class="location-text">
+            <span class="location-label">Pickup</span>
+            <span class="location-address" id="request-pickup">Loading address...</span>
+          </div>
+        </div>
+        <div class="ride-request-location">
+          <div class="location-icon dropoff">■</div>
+          <div class="location-text">
+            <span class="location-label">Destination</span>
+            <span class="location-address" id="request-dropoff">Loading address...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ride-request-meta">
+        <div class="meta-item">
+          <div class="meta-value" id="request-distance">--</div>
+          <div class="meta-label">Distance</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-value" id="request-time">--</div>
+          <div class="meta-label">Est. Time</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-value" id="request-ride-type">Ride</div>
+          <div class="meta-label">Ride Type</div>
+        </div>
+      </div>
+
+      <div class="ride-request-fare">
+        <span class="fare-label">Estimated Fare</span>
+        <span class="fare-amount" id="request-fare">R--.--</span>
+      </div>
+
+      <div class="ride-request-actions">
+        <button class="decline-btn" id="decline-ride-btn">Decline</button>
+        <button class="accept-ride-btn" id="accept-ride-btn">✓ Accept Ride</button>
+      </div>
     </div>
   </div>
 
