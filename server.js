@@ -97,9 +97,11 @@ app.post('/api/login', (req, res) => {
     });
   }
 
-  // Find user
+  // Case-insensitive on username (same rule signup/forgot-password already
+  // use for lookups) so how a user happened to capitalize it at signup
+  // doesn't lock them out later. Password stays case-sensitive.
   const user = DEMO_USERS.find(
-    u => u.username === username && u.password === password
+    u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
   );
 
   if (!user) {
@@ -430,10 +432,15 @@ async function startServer() {
       }
     });
 
-    // Get all rides
+    // Get rides. Drivers need to see every pending/accepted ride on the
+    // platform, so this stays unfiltered by default — but a rider's own
+    // history page should only ever see their own rides, so an optional
+    // ?riderUsername= filter narrows the query to just that rider.
     app.get('/api/rides', async (req, res) => {
       try {
-        const rides = await Ride.find().sort({ createdAt: -1 }).limit(100);
+        const { riderUsername } = req.query;
+        const query = riderUsername ? { riderUsername } : {};
+        const rides = await Ride.find(query).sort({ createdAt: -1 }).limit(100);
         res.json(rides);
       } catch (err) {
         console.error('Error fetching rides:', err);

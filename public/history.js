@@ -48,19 +48,38 @@ function addRideToHistory(ride) {
 
   li.innerHTML = `
     <div class="ride-status-badge">
-      <span class="status ${ride.status}">${ride.status.toUpperCase()}</span>
-      <span class="ride-time">${statusEmoji} ${ride._id.slice(-6).toUpperCase()}</span>
+      <span class="status ${ride.status}">${statusEmoji} ${ride.status.toUpperCase()}</span>
+      <span class="ride-time">#${ride._id.slice(-6).toUpperCase()}</span>
     </div>
-    <div style="margin-top: 0.75rem;">
-      <strong> Ride Type</strong> ${rideTypeLabel} (${ride.seats || 2} seats)<br>
-      <strong> Pickup</strong><br>
-      <span id="${pickupId}">Loading location...</span><br>
-      <br>
-      <strong> Dropoff</strong><br>
-      <span id="${dropoffId}">Loading location...</span><br>
-      <br>
-      <strong> Distance</strong> ${ride.distance != null ? ride.distance.toFixed(2) + ' km' : 'N/A'}<br>
-      <strong> Fare</strong> ${ride.fare != null ? 'R' + ride.fare.toFixed(2) : 'N/A'}
+
+    <div class="route-line" style="margin-top: 0.75rem;">
+      <div class="route-line-track" aria-hidden="true">
+        <span class="route-stop-dot pickup"></span>
+        <span class="route-thread"></span>
+        <span class="route-stop-dot dropoff"></span>
+      </div>
+      <div class="route-line-stops">
+        <div class="route-stop">
+          <span class="route-stop-label">Pickup</span>
+          <span class="route-stop-value" id="${pickupId}">Loading location…</span>
+        </div>
+        <div class="route-stop">
+          <span class="route-stop-label">Dropoff</span>
+          <span class="route-stop-value" id="${dropoffId}">Loading location…</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="ride-fare-estimate" style="margin-top: 0.75rem;">
+      <div class="ride-fare-row">
+        <span class="ride-fare-label">${rideTypeLabel} · ${ride.seats || 2} seats</span>
+        <span class="ride-fare-trip">${ride.distance != null ? ride.distance.toFixed(2) + ' km' : 'N/A'}</span>
+      </div>
+      <div class="ride-fare-divider"></div>
+      <div class="ride-fare-row ride-fare-row-total">
+        <span class="ride-fare-label">Fare</span>
+        <span class="ride-fare-value">${ride.fare != null ? 'R' + ride.fare.toFixed(2) : 'N/A'}</span>
+      </div>
     </div>
   `;
 
@@ -79,7 +98,7 @@ function addRideToHistory(ride) {
 
 async function loadHistory() {
   try {
-    const response = await fetch('/api/rides');
+    const response = await fetch(`/api/rides?riderUsername=${encodeURIComponent(session.username)}`);
 
     if (!response.ok) {
       throw new Error(`Failed to load rides: ${response.status}`);

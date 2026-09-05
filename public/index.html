@@ -14,7 +14,12 @@
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
     crossorigin="">
-  
+
+  <!-- Display typeface used for the fare, ride-type names, and header wordmark -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
   <!-- Custom Styles -->
   <link rel="stylesheet" href="style.css">
   
@@ -138,19 +143,20 @@
       </button>
 
       <div id="ride-controls" class="hidden" role="region" aria-label="Request controls">
-        <div class="ride-summary">
-          <div class="ride-summary-row">
-            <span class="ride-summary-dot pickup"></span>
-            <div class="ride-summary-text">
-              <span class="ride-summary-label">Pickup</span>
-              <span class="ride-summary-value" id="pickup-address">—</span>
-            </div>
+        <div class="route-line">
+          <div class="route-line-track" aria-hidden="true">
+            <span class="route-stop-dot pickup"></span>
+            <span class="route-thread"></span>
+            <span class="route-stop-dot dropoff"></span>
           </div>
-          <div class="ride-summary-row">
-            <span class="ride-summary-dot dropoff"></span>
-            <div class="ride-summary-text">
-              <span class="ride-summary-label">Dropoff</span>
-              <span class="ride-summary-value" id="dropoff-address">—</span>
+          <div class="route-line-stops">
+            <div class="route-stop">
+              <span class="route-stop-label">Pickup</span>
+              <span class="route-stop-value" id="pickup-address">—</span>
+            </div>
+            <div class="route-stop">
+              <span class="route-stop-label">Dropoff</span>
+              <span class="route-stop-value" id="dropoff-address">—</span>
             </div>
           </div>
         </div>
@@ -158,33 +164,39 @@
         <div id="ride-type-selector" class="ride-type-selector" role="radiogroup" aria-label="Choose ride size">
           <label class="ride-type-option">
             <input type="radio" name="ride-type" value="ride" checked>
+            <span class="ride-type-seats-icon" aria-hidden="true"><span></span><span></span></span>
             <span class="ride-type-name">Ride</span>
             <span class="ride-type-seats">2 seats</span>
           </label>
           <label class="ride-type-option">
             <input type="radio" name="ride-type" value="rideL">
+            <span class="ride-type-seats-icon" aria-hidden="true"><span></span><span></span><span></span><span></span></span>
             <span class="ride-type-name">RideL</span>
             <span class="ride-type-seats">4 seats</span>
           </label>
           <label class="ride-type-option">
             <input type="radio" name="ride-type" value="rideXL">
+            <span class="ride-type-seats-icon" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></span>
             <span class="ride-type-name">RideXL</span>
             <span class="ride-type-seats">6 seats</span>
           </label>
         </div>
 
         <div class="ride-fare-estimate" id="ride-fare-estimate" role="status" aria-live="polite">
-          <span class="ride-fare-label">Estimated Fare</span>
-          <span class="ride-fare-value" id="ride-fare-value">—</span>
-        </div>
-
-        <div class="ride-trip-info" id="ride-trip-info" role="status" aria-live="polite">
-          <span id="ride-trip-distance">Calculating route…</span>
+          <div class="ride-fare-row">
+            <span class="ride-fare-label">Trip</span>
+            <span class="ride-fare-trip" id="ride-trip-distance">Calculating route…</span>
+          </div>
+          <div class="ride-fare-divider" aria-hidden="true"></div>
+          <div class="ride-fare-row ride-fare-row-total">
+            <span class="ride-fare-label">Fare</span>
+            <span class="ride-fare-value" id="ride-fare-value">—</span>
+          </div>
         </div>
 
         <div class="ride-controls-actions">
           <button id="request-btn" aria-label="Request a ride with selected locations">
-            Confirm Ride
+            Confirm ride
           </button>
           <button id="reset-btn" aria-label="Clear selected locations">
             Reset

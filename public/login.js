@@ -4,7 +4,7 @@ const passwordInput = document.getElementById('password');
 const loginBtn = document.getElementById('login-btn');
 const loginError = document.getElementById('login-error');
 
-loginBtn.addEventListener('click', function (e) {
+loginForm.addEventListener('submit', function (e) {
   e.preventDefault();
   handleLogin();
 });
@@ -65,14 +65,6 @@ function showError(message) {
   loginError.textContent = message;
   loginError.classList.add('show');
 }
-
-// Allow Enter key to trigger login
-loginForm.addEventListener('keypress', function (e) {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    handleLogin();
-  }
-});
 
 // If user is already logged in, redirect them.
 // Only trust a session that is fully valid (matches the same check auth.js
